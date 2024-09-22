@@ -1,3 +1,4 @@
+from redis import Redis
 from redis.commands.search.query import Query
 from redis.commands.search.field import VectorField
 from redis.commands.search.indexDefinition import IndexDefinition, IndexType
@@ -10,10 +11,11 @@ class VectorClient:
 
         self.r = r
 
-    def create_index( self ): 
+    def create_index( self, host, port ):
+        r = Redis( host = host, port = port )
+
         try:
-            self.r.ft( self._INDEX_NAME ).info()
-            print("Index already exists!")
+            r.ft( self._INDEX_NAME ).info()
         except:
             schema = (
                 VectorField(
@@ -42,7 +44,7 @@ class VectorClient:
         .dialect( 4 )
     )
 
-    def knn_search( r, n, img_emb ):
+    async def knn_search( r, n, img_emb ):
         aux = await r.ft( "idx:img_emb" ).search(
             query,
             { "n": n, "vec": img_emb }
