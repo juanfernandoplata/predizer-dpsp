@@ -1,0 +1,32 @@
+services:
+  redis:
+    image: "redis/redis-stack-server:latest"
+    container_name: ${REDIS_HOST}
+    environment:
+      - REDIS_ARGS=--bind 0.0.0.0 --save 10 1
+    ports:
+      - "6379:6379"
+    networks:
+      - ${PNAME}-network
+
+  api:
+    build:
+      context: ./api/
+      dockerfile: Dockerfile
+    container_name: ${PNAME}-api
+    environment:
+      - REDIS_HOST=${REDIS_HOST}
+      - REDIS_PORT=${REDIS_PORT}
+    ports:
+      - "8000:8000"
+    depends_on:
+      redis:
+        condition: service_healthy
+        restart: true
+ 
+    networks:
+      - ${PNAME}-network
+
+networks:
+  dpsp-network:
+    driver: bridge

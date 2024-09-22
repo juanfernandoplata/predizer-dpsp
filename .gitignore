@@ -1,0 +1,5 @@
+/api/venv/
+
+*__pycache__
+
+/api/app/vgg16.weights.h5
